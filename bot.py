@@ -37,15 +37,15 @@ def read_headlines(source):
         print(str(e) + " while reading " + source)
         return []
 
-def find_relevant_headlines():
+def find_relevant_headline_urls():
     headlines = []
     
     for source in SOURCES:
         for headline in read_headlines(source):
             if is_relevant(headline):
-                headlines.append(headline)
+                headlines.append(headline['link'])
     
-    return headlines
+    return set(headlines)
 
 def is_relevant(headline):
     for keyword in KEYWORDS:
@@ -53,30 +53,27 @@ def is_relevant(headline):
             return True
     return False
 
-def in_cache(headline, cache):
-    link = headline['link']
-    for cached in cache:
-        if cached['link'] == link:
-            return True
-    return False
-
-def handle_headlines(headlines):
+def handle_urls(urls):
     try:
         with open('cache.json') as f:
             cache = json.load(f)
     except Exception:
         cache = []
     
-    for headline in headlines:
-        if not in_cache(headline, cache):
-            post(headline)
+    for url in urls:
+        if not url in cache:
+            post(url)
     
     with open('cache.json', 'w') as f:
-        f.write(json.dumps(headlines, indent=2))
+        f.write(json.dumps(list(urls), indent=2))
 
-def post(headline):
-    api.update_status('torille ' + headline['link'])
+def post(url):
+    #api.update_status('torille ' + url)
+    print(url)
 
 while True:
-    handle_headlines(find_relevant_headlines())
+    try:
+        handle_urls(find_relevant_headline_urls())
+    except Exception as e:
+        print(e)
     sleep(60*15)
