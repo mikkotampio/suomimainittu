@@ -68,7 +68,7 @@ def handle_urls(urls):
         f.write(json.dumps(list(urls), indent=2))
 
 def post(url):
-    #api.update_status('torille ' + url)
+    api.update_status('torille ' + url)
     print(url)
 
 while True:
